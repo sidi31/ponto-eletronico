@@ -1,7 +1,9 @@
-// registro.js
+// registro.js (VERSÃO COMPLETA)
+
+// Ajuste conforme seu backend
 const API_BASE = 'http://localhost:4000/api';
 
-// UI helpers
+// UI
 const toast = document.getElementById('toast');
 function showToast(message){
   toast.textContent = message;
@@ -9,7 +11,9 @@ function showToast(message){
   setTimeout(()=> toast.classList.remove('show'), 2500);
 }
 
-// modal
+const statusLine = document.getElementById('statusLine');
+
+// Modal
 const modal = document.getElementById('confirmModal');
 const confirmTipoEl = document.getElementById('confirmTipo');
 let modalResolve = null;
@@ -30,112 +34,148 @@ document.getElementById('confirmOk').onclick = () => {
   if(modalResolve) modalResolve(true);
   closeModal();
 };
+
 document.getElementById('confirmCancel').onclick = () => closeModal();
 
-// elements
+modal.addEventListener('click', e => {
+  if(e.target === modal) closeModal();
+});
+
+// ELEMENTOS
 const btnEntrada = document.getElementById('btnEntrada');
-const btnSaida = document.getElementById('btnSaida');
-const btnSync = document.getElementById('btnSync');
+const btnSaida   = document.getElementById('btnSaida');
+const btnSync    = document.getElementById('btnSync');
 const historicoBody = document.querySelector('#historicoTable tbody');
-const statusLine = document.getElementById('statusLine');
+const userBox = document.getElementById('userBox');
+const logoutLink = document.getElementById('logout');
 
-// storage
-const PEND_KEY = 'pend_ponto';
+// LOCAL STORAGE
+const PEND_KEY = 'ponto_pendentes';
 
-function getPendentes(){ return JSON.parse(localStorage.getItem(PEND_KEY) || '[]'); }
-function setPendentes(a){ localStorage.setItem(PEND_KEY, JSON.stringify(a)); btnSync.textContent = `Sincronizar (${a.length})`; }
-
-// load user
-(function(){
-  const u = JSON.parse(localStorage.getItem('user') || 'null');
-  const box = document.getElementById('userBox');
-  if(!u) box.textContent = 'Não logado';
-  else box.textContent = `Logado como: ${u.nome}`;
-})();
-
-async function apiFetch(path, opts={}){
-  const t = localStorage.getItem('token');
-  const h = opts.headers || {};
-  h['Content-Type'] = 'application/json';
-  if(t) h['Authorization'] = `Bearer ${t}`;
-  opts.headers = h;
-
-  const res = await fetch(API_BASE + path, opts);
-  const txt = await res.text();
-  if(!res.ok){
-    try{
-      const j = JSON.parse(txt);
-      throw new Error(j.message || txt);
-    }catch(e){
-      throw new Error(txt);
-    }
+function getPendentes(){
+  try{
+    return JSON.parse(localStorage.getItem(PEND_KEY) || '[]');
+  } catch(e){
+    return [];
   }
-  return JSON.parse(txt);
 }
 
-// registrar ponto
+function setPendentes(arr){
+  localStorage.setItem(PEND_KEY, JSON.stringify(arr));
+  btnSync.textContent = `Sincronizar (${arr.length})`;
+}
+
+function loadUserInfo(){
+  try{
+    const u = JSON.parse(localStorage.getItem('user') || 'null');
+    if(u && u.nome){
+      userBox.textContent = `Logado como: ${u.nome}`;
+    } else {
+      userBox.textContent = 'Usuário não autenticado';
+    }
+  }catch(e){
+    userBox.textContent = 'Usuário não autenticado';
+  }
+}
+
+loadUserInfo();
+
+// API HELPER
+async function apiFetch(path, opts={}){
+  const token = localStorage.getItem('token');
+  const headers = opts.headers || {};
+  headers["Content-Type"] = "application/json";
+  if(token) headers["Authorization"] = "Bearer " + token;
+  opts.headers = headers;
+
+  const r = await fetch(API_BASE + path, opts);
+  const txt = await r.text();
+
+  let json;
+  try { json = JSON.parse(txt); } catch(e){ json = txt; }
+
+  if(!r.ok){
+    const msg = (json && json.message) ? json.message : txt;
+    throw new Error(msg);
+  }
+  return json;
+}
+
+// REGISTRAR PONTO
 async function registrar(tipo){
   const ok = await openModal(tipo);
   if(!ok) return;
 
-  statusLine.textContent = 'Registrando…';
+  statusLine.textContent = "Registrando ponto...";
+
   try{
-    const r = await apiFetch('/pontos/registrar', {
+    const result = await apiFetch('/pontos/registrar', {
       method: 'POST',
       body: JSON.stringify({ tipo })
     });
-    showToast('Ponto registrado no servidor');
-    statusLine.textContent = 'Registrado com sucesso';
+
+    showToast("Ponto registrado no servidor");
+    statusLine.textContent = "Registrado com sucesso!";
     carregarHistorico();
   }catch(e){
-    showToast('API offline — salvo local');
+    showToast("API offline — registro salvo local");
+    statusLine.textContent = "Salvo offline";
+
     const arr = getPendentes();
-    arr.push({ tipo, ts: new Date().toISOString() });
+    arr.push({
+      tipo,
+      ts: new Date().toISOString()
+    });
     setPendentes(arr);
+
     carregarHistoricoLocal();
-    statusLine.textContent = 'Offline — registro local salvo';
   }
 }
 
-btnEntrada.onclick = () => registrar('entrada');
-btnSaida.onclick = () => registrar('saida');
-
-btnSync.onclick = syncPendentes;
-
-async function syncPendentes(){
+// SINCRONIZAR
+async function sincronizar(){
   const pend = getPendentes();
-  if(!pend.length){ showToast('Nada a sincronizar'); return; }
+  if(!pend.length){
+    showToast("Nada a sincronizar");
+    return;
+  }
 
-  statusLine.textContent = 'Sincronizando...';
+  statusLine.textContent = "Sincronizando...";
 
-  let ok = 0;
+  let okCount = 0;
   for(const p of pend.slice()){
     try{
       await apiFetch('/pontos/registrar',{
-        method:'POST',
-        body: JSON.stringify({ tipo:p.tipo })
+        method: 'POST',
+        body: JSON.stringify({ tipo: p.tipo })
       });
-      ok++;
-      const newArr = getPendentes();
-      newArr.shift();
-      setPendentes(newArr);
+      okCount++;
+      const arr = getPendentes();
+      arr.shift();
+      setPendentes(arr);
     }catch(e){
-      break; 
+      break;
     }
   }
 
-  if(ok) showToast(`Sincronizado(s): ${ok}`);
+  if(okCount > 0)
+    showToast(`Sincronizados: ${okCount}`);
+  
   carregarHistorico();
-  statusLine.textContent = '';
+  statusLine.textContent = "";
 }
 
-// carregar histórico
+btnEntrada.onclick = () => registrar("entrada");
+btnSaida.onclick   = () => registrar("saida");
+btnSync.onclick    = () => sincronizar();
+
+// HISTÓRICO
 async function carregarHistorico(){
   try{
-    const data = await apiFetch('/pontos/historico');
-    renderHist(data);
+    const rows = await apiFetch('/pontos/historico');
+    renderHistorico(rows);
   }catch(e){
-    renderHist([]);
+    renderHistorico([]);
   }
   carregarHistoricoLocal();
 }
@@ -143,24 +183,30 @@ async function carregarHistorico(){
 function carregarHistoricoLocal(){
   const pend = getPendentes();
   if(!pend.length) return;
-  const rows = pend.map(p=>({
+
+  const extra = pend.map(p => ({
     data_registro: p.ts.slice(0,10),
     hora_registro: p.ts.slice(11,19),
-    tipo: `${p.tipo} (pend.)`,
-    observacoes:''
+    tipo: p.tipo + " (pend.)",
+    observacoes: ""
   }));
-  renderHist(rows, true);
+
+  renderHistorico(extra, true);
 }
 
-function renderHist(list, append=false){
-  if(!append) historicoBody.innerHTML = '';
+function renderHistorico(data, append=false){
+  if(!append) historicoBody.innerHTML = "";
 
-  if(!list.length){
-    if(!append) historicoBody.innerHTML = `<tr><td colspan="4">Nenhum registro</td></tr>`;
+  if(!data.length){
+    if(!append){
+      historicoBody.innerHTML = `
+        <tr><td colspan="4" style="color:#888">Nenhum registro</td></tr>
+      `;
+    }
     return;
   }
 
-  for(const r of list){
+  for(const r of data){
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td>${r.data_registro || ''}</td>
@@ -173,4 +219,12 @@ function renderHist(list, append=false){
 }
 
 carregarHistorico();
-setInterval(syncPendentes, 60000);
+setInterval(()=> {
+  if(getPendentes().length>0) sincronizar();
+}, 60000);
+
+// LOGOUT
+logoutLink.addEventListener('click', () => {
+  localStorage.removeItem('token');
+  localStorage.removeItem('user');
+});
