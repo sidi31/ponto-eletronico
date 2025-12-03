@@ -1,35 +1,62 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <title>Registrar Ponto</title>
-    <link rel="stylesheet" href="css/estilo.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Registrar Ponto — Controle de Ponto</title>
+  <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
+  <main class="container">
+    <header class="header">
+      <h1>Registrar Ponto</h1>
+      <div id="userBox" class="user-box">Carregando usuário...</div>
+    </header>
 
-<header>
-    <h1>Registrar Ponto</h1>
-</header>
+    <section class="actions" aria-labelledby="action-title">
+      <h2 id="action-title" class="sr-only">Ações de registro</h2>
+      <div class="buttons">
+        <button id="btnEntrada" class="btn primary" aria-live="polite">Registrar Entrada</button>
+        <button id="btnSaida" class="btn warn" aria-live="polite">Registrar Saída</button>
+        <button id="btnSync" class="btn outline" title="Sincronizar pendentes">Sincronizar (0)</button>
+      </div>
+      <p id="statusLine" class="status-line" role="status"></p>
+    </section>
 
-<section class="container">
+    <section class="history" aria-labelledby="hist-title">
+      <h2 id="hist-title">Histórico</h2>
+      <div class="table-wrap">
+        <table id="historicoTable" class="table" aria-live="polite">
+          <thead><tr><th>Data</th><th>Hora</th><th>Tipo</th><th>Obs</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
 
-    <label>Nome do Servidor:</label>
-    <input type="text" id="nome">
+    <div class="help">
+      <small>Dica: Este sistema grava a hora no servidor quando possível. Se estiver offline, a marcação fica salva no seu navegador e será sincronizada quando a API voltar.</small>
+    </div>
 
-    <label>Tipo de Registro:</label>
-    <select id="tipo">
-        <option value="entrada">Entrada</option>
-        <option value="saida">Saída</option>
-    </select>
+    <footer class="footer">
+      <a href="login.html" id="logout">Sair</a>
+    </footer>
+  </main>
 
-    <button class="botao" onclick="registrarPonto()">Confirmar Registro</button>
+  <!-- Modal de confirmação -->
+  <div id="confirmModal" class="modal" aria-hidden="true" role="dialog" aria-labelledby="confirmTitle">
+    <div class="modal-content">
+      <h3 id="confirmTitle">Confirmar registro</h3>
+      <p id="confirmText">Deseja registrar <strong id="confirmTipo">entrada</strong> agora?</p>
+      <div class="modal-actions">
+        <button id="confirmOk" class="btn primary">Sim</button>
+        <button id="confirmCancel" class="btn">Não</button>
+      </div>
+    </div>
+  </div>
 
-</section>
+  <!-- Toast -->
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
-<footer>
-    © Câmara Municipal de Santiago do Sul
-</footer>
-
-<script src="js/script.js"></script>
+  <script src="js/registro.js"></script>
 </body>
 </html>
