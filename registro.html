@@ -1,62 +1,168 @@
-<!doctype html>
-<html lang="pt-BR">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Registrar Ponto — Controle de Ponto</title>
-  <link rel="stylesheet" href="css/styles.css">
-</head>
-<body>
-  <main class="container">
-    <header class="header">
-      <h1>Registrar Ponto</h1>
-      <div id="userBox" class="user-box">Carregando usuário...</div>
-    </header>
+// registro.js
+const API_BASE = 'http://localhost:4000/api'; // ajuste se necessário
 
-    <section class="actions" aria-labelledby="action-title">
-      <h2 id="action-title" class="sr-only">Ações de registro</h2>
-      <div class="buttons">
-        <button id="btnEntrada" class="btn primary" aria-live="polite">Registrar Entrada</button>
-        <button id="btnSaida" class="btn warn" aria-live="polite">Registrar Saída</button>
-        <button id="btnSync" class="btn outline" title="Sincronizar pendentes">Sincronizar (0)</button>
-      </div>
-      <p id="statusLine" class="status-line" role="status"></p>
-    </section>
+// Helpers UI
+const toastEl = document.getElementById('toast');
+function showToast(msg, time=3000){
+  toastEl.textContent = msg;
+  toastEl.classList.add('show');
+  setTimeout(()=> toastEl.classList.remove('show'), time);
+}
 
-    <section class="history" aria-labelledby="hist-title">
-      <h2 id="hist-title">Histórico</h2>
-      <div class="table-wrap">
-        <table id="historicoTable" class="table" aria-live="polite">
-          <thead><tr><th>Data</th><th>Hora</th><th>Tipo</th><th>Obs</th></tr></thead>
-          <tbody></tbody>
-        </table>
-      </div>
-    </section>
+const statusLine = document.getElementById('statusLine');
+function setStatus(txt){ statusLine.textContent = txt; }
 
-    <div class="help">
-      <small>Dica: Este sistema grava a hora no servidor quando possível. Se estiver offline, a marcação fica salva no seu navegador e será sincronizada quando a API voltar.</small>
-    </div>
+// Modal
+const modal = document.getElementById('confirmModal');
+const confirmTipoEl = document.getElementById('confirmTipo');
+let confirmResolve = null;
+function openConfirm(tipo){
+  confirmTipoEl.textContent = tipo;
+  modal.setAttribute('aria-hidden','false');
+  return new Promise(res => confirmResolve = res);
+}
+function closeConfirm(){ modal.setAttribute('aria-hidden','true'); if(confirmResolve) confirmResolve(false); confirmResolve=null; }
 
-    <footer class="footer">
-      <a href="login.html" id="logout">Sair</a>
-    </footer>
-  </main>
+document.getElementById('confirmCancel').addEventListener('click', ()=> closeConfirm());
+document.getElementById('confirmOk').addEventListener('click', ()=> { if(confirmResolve) confirmResolve(true); closeConfirm(); });
 
-  <!-- Modal de confirmação -->
-  <div id="confirmModal" class="modal" aria-hidden="true" role="dialog" aria-labelledby="confirmTitle">
-    <div class="modal-content">
-      <h3 id="confirmTitle">Confirmar registro</h3>
-      <p id="confirmText">Deseja registrar <strong id="confirmTipo">entrada</strong> agora?</p>
-      <div class="modal-actions">
-        <button id="confirmOk" class="btn primary">Sim</button>
-        <button id="confirmCancel" class="btn">Não</button>
-      </div>
-    </div>
-  </div>
+// Elements
+const btnEntrada = document.getElementById('btnEntrada');
+const btnSaida = document.getElementById('btnSaida');
+const btnSync = document.getElementById('btnSync');
+const userBox = document.getElementById('userBox');
+const historicoTableBody = document.querySelector('#historicoTable tbody');
+const logoutLink = document.getElementById('logout');
 
-  <!-- Toast -->
-  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+let user = null;
+let pendingKey = 'ponto_pending';
 
-  <script src="js/registro.js"></script>
-</body>
-</html>
+function loadUserFromStorage(){
+  try{
+    const u = JSON.parse(localStorage.getItem('user') || 'null');
+    if(u && u.nome) { user = u; userBox.textContent = `Logado como: ${u.nome}`; } else userBox.textContent = 'Usuário não autenticado';
+  }catch(e){ userBox.textContent = 'Usuário não autenticado'; }
+}
+loadUserFromStorage();
+
+// API util with token
+async function apiFetch(path, opts = {}){
+  const token = localStorage.getItem('token');
+  const headers = opts.headers || {};
+  headers['Content-Type'] = 'application/json';
+  if(token) headers['Authorization'] = 'Bearer ' + token;
+  opts.headers = headers;
+  const res = await fetch(API_BASE + path, opts);
+  if(res.status === 401 || res.status === 403) throw new Error('Não autorizado. Faça login novamente.');
+  if(!res.ok) {
+    const txt = await res.text();
+    throw new Error(txt || 'Erro na requisição');
+  }
+  return res.json();
+}
+
+// Local pending store
+function getPendentes(){ return JSON.parse(localStorage.getItem(pendingKey) || '[]'); }
+function setPendentes(arr){ localStorage.setItem(pendingKey, JSON.stringify(arr)); updateSyncButton(); }
+function addPendente(item){ const arr = getPendentes(); arr.push(item); setPendentes(arr); showToast('Registro salvo localmente (offline)'); }
+
+// Update sync button label
+function updateSyncButton(){ const n = getPendentes().length; btnSync.textContent = `Sincronizar (${n})`; }
+
+// Register point (tries server, fallback local)
+async function registrar(tipo, observacoes = ''){
+  // confirm
+  const ok = await openConfirm(tipo);
+  if(!ok) return;
+
+  setStatus('Registrando ponto...');
+  const registro = { tipo, observacoes, client_ts: new Date().toISOString() };
+
+  // Try send to server
+  try{
+    const r = await apiFetch('/pontos/registrar', { method: 'POST', body: JSON.stringify({ tipo, observacoes }) });
+    showToast('Ponto registrado no servidor');
+    setStatus('Registrado: ' + r.registro.data_registro + ' ' + r.registro.hora_registro);
+    await carregarHistorico();
+  } catch(err){
+    // fallback: store locally
+    console.warn('API indisponível, salvando local', err);
+    addPendente(registro);
+    setStatus('Offline — registro salvo localmente');
+    await carregarHistoricoLocalAndServer();
+  }
+}
+
+// Sync pending
+async function syncPendentes(){
+  const pend = getPendentes();
+  if(!pend.length){ showToast('Nada a sincronizar'); return; }
+  setStatus('Sincronizando ' + pend.length + ' registro(s)...');
+  let success = 0;
+  for(const p of pend.slice()){ // copy
+    try{
+      await apiFetch('/pontos/registrar',{ method:'POST', body: JSON.stringify({ tipo: p.tipo, observacoes: p.observacoes || '' }) });
+      success++;
+      // remove first matching pending
+      const arr = getPendentes(); arr.shift(); setPendentes(arr);
+    }catch(e){
+      console.error('Erro ao sincronizar', e);
+      break; // stop on first error
+    }
+  }
+  if(success) showToast(`Sincronizados ${success} registro(s)`);
+  await carregarHistorico();
+  setStatus('');
+}
+
+// Load history from server; if fails, combine with local pendentes
+async function carregarHistorico(){
+  try{
+    const data = await apiFetch('/pontos/historico');
+    renderHistorico(data);
+    await carregarHistoricoLocalAndServer();
+  }catch(e){
+    console.warn('Não foi possível carregar histórico do servidor', e);
+    await carregarHistoricoLocalAndServer();
+  }
+}
+
+// Show both server data (if any) and pending local
+async function carregarHistoricoLocalAndServer(){
+  let serverData = [];
+  try{ serverData = await apiFetch('/pontos/historico'); }catch(e){ serverData = []; }
+  const pend = getPendentes();
+  const merged = [...pend.map(p=>({data_registro: p.client_ts.slice(0,10), hora_registro: p.client_ts.slice(11,19), tipo: p.tipo + ' (pend.)', observacoes: p.observacoes || ''})), ...serverData];
+  renderHistorico(merged);
+}
+
+function renderHistorico(data){
+  historicoTableBody.innerHTML = '';
+  if(!Array.isArray(data) || data.length===0){
+    historicoTableBody.innerHTML = '<tr><td colspan="4" style="color:var(--muted)">Nenhum registro encontrado</td></tr>';
+    return;
+  }
+  for(const r of data){
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${r.data_registro || ''}</td><td>${r.hora_registro || ''}</td><td>${r.tipo || ''}</td><td>${r.observacoes || ''}</td>`;
+    historicoTableBody.appendChild(tr);
+  }
+}
+
+// Wire events
+btnEntrada.addEventListener('click', ()=> registrar('entrada'));
+btnSaida.addEventListener('click', ()=> registrar('saida'));
+btnSync.addEventListener('click', ()=> syncPendentes());
+
+// Logout clears token and user
+if(logoutLink) logoutLink.addEventListener('click', (e)=>{ localStorage.removeItem('token'); localStorage.removeItem('user'); });
+
+// Modal trap: allow clicking outside to cancel
+modal.addEventListener('click', (e)=>{ if(e.target === modal) closeConfirm(); });
+
+// Init
+updateSyncButton();
+carregarHistorico();
+
+// Periodic attempt to sync (every 60s)
+setInterval(()=>{ if(getPendentes().length>0) syncPendentes(); }, 60000);
