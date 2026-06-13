@@ -13,13 +13,14 @@ Abra o arquivo `index.html` no navegador.
 ```text
 /
 +-- index.html
-+-- registro.html
-+-- confirmado.html
-+-- css/
-|   +-- estilo.css
-+-- js/
-|   +-- script.js
++-- pages/
+|   +-- registro.html
+|   +-- confirmado.html
 +-- assets/
+|   +-- css/
+|   |   +-- estilo.css
+|   +-- js/
+|   |   +-- script.js
 |   +-- img/
 |       +-- image.png
 +-- docs/
