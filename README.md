@@ -16,13 +16,24 @@ Abra o arquivo `index.html` no navegador.
 +-- pages/
 |   +-- registro.html
 |   +-- confirmado.html
+|   +-- historico.html
+|   +-- perfil.html
+|   +-- admin.html
+|   +-- admin-servidor.html
+|   +-- admin-relatorios.html
+|   +-- login-admin.html
 +-- assets/
 |   +-- css/
 |   |   +-- estilo.css
 |   +-- js/
 |   |   +-- script.js
+|   |   +-- storage.js
 |   +-- img/
-|       +-- image.png
+|       +-- flag_Santiago.png
+|       +-- image_sem_fundo.png
++-- data/
+|   +-- usuarios.json
+|   +-- registros.json
 +-- docs/
     +-- PROJETO.md
 ```

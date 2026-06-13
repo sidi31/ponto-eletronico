@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Registrar Ponto</title>
+    <title>Histórico de Ponto</title>
     <link rel="icon" type="image/png" href="../assets/img/image_sem_fundo.png">
     <link rel="stylesheet" href="../assets/css/estilo.css">
 </head>
@@ -16,24 +16,29 @@
 <div class="titulo-sistema">Sistema de Ponto Eletrônico</div>
 
 <section class="container card-registro">
-
-    <span class="etiqueta">Registro de ponto</span>
-    <h3>Registrar Ponto</h3>
-    <p>Informe o nome cadastrado pelo administrador.</p>
+    <span class="etiqueta">Histórico</span>
+    <h3>Consultar Ponto</h3>
 
     <label>Nome:</label>
-    <input type="text" id="nome">
-    <p class="mensagem-ajuda" id="statusRegistro"></p>
+    <input type="text" id="nomeHistorico">
 
-    <label>Registro:</label>
-    <select id="tipo">
-        <option value="entrada">Entrada</option>
-        <option value="saida">Saída</option>
-    </select>
+    <button class="botao" onclick="consultarHistorico()">Consultar</button>
+    <p class="mensagem-ajuda" id="resumoHistorico"></p>
 
-    <button class="botao" onclick="registrarPonto()">Confirmar Registro</button>
+    <div class="tabela-area">
+        <table>
+            <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Hora</th>
+                    <th>Registro</th>
+                </tr>
+            </thead>
+            <tbody id="listaHistorico"></tbody>
+        </table>
+    </div>
+
     <a class="link-voltar" href="../index.html">Voltar</a>
-
 </section>
 
 <footer>

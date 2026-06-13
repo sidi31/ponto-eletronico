@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Relatórios</title>
+    <link rel="icon" type="image/png" href="../assets/img/image_sem_fundo.png">
+    <link rel="stylesheet" href="../assets/css/estilo.css">
+</head>
+<body data-admin="true">
+
+<header>
+    <img class="logo" src="../assets/img/image_sem_fundo.png" alt="Brasão de Santiago do Sul">
+    <h1>Câmara Municipal de Santiago do Sul</h1>
+</header>
+
+<div class="titulo-sistema">Sistema de Ponto Eletrônico</div>
+
+<section class="container container-largo">
+    <span class="etiqueta">Relatório</span>
+    <h3>Servidores</h3>
+
+    <div class="resumo-admin" id="resumoAdmin"></div>
+
+    <div class="tabela-area">
+        <table>
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Matrícula</th>
+                    <th>Setor</th>
+                    <th>Status</th>
+                    <th>Registros</th>
+                    <th>Banco</th>
+                    <th>Ação</th>
+                </tr>
+            </thead>
+            <tbody id="listaServidores"></tbody>
+        </table>
+    </div>
+
+    <button class="botao botao-secundario" onclick="baixarDadosJson()">Baixar JSON</button>
+    <a class="botao botao-secundario" href="admin-servidor.html">Cadastrar Servidor</a>
+    <a class="link-voltar" href="admin.html">Voltar</a>
+</section>
+
+<footer>
+    &copy; 2026 Câmara Municipal de Santiago do Sul
+</footer>
+
+<script src="../assets/js/storage.js"></script>
+<script src="../assets/js/script.js"></script>
+</body>
+</html>

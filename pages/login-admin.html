@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Registrar Ponto</title>
+    <title>Login do Administrador</title>
     <link rel="icon" type="image/png" href="../assets/img/image_sem_fundo.png">
     <link rel="stylesheet" href="../assets/css/estilo.css">
 </head>
@@ -16,24 +16,19 @@
 <div class="titulo-sistema">Sistema de Ponto Eletrônico</div>
 
 <section class="container card-registro">
+    <span class="etiqueta">Administração</span>
+    <h3>Login do Admin</h3>
 
-    <span class="etiqueta">Registro de ponto</span>
-    <h3>Registrar Ponto</h3>
-    <p>Informe o nome cadastrado pelo administrador.</p>
+    <label>Usuário:</label>
+    <input type="text" id="loginAdmin">
 
-    <label>Nome:</label>
-    <input type="text" id="nome">
-    <p class="mensagem-ajuda" id="statusRegistro"></p>
+    <label>Senha:</label>
+    <input type="password" id="senhaAdmin">
 
-    <label>Registro:</label>
-    <select id="tipo">
-        <option value="entrada">Entrada</option>
-        <option value="saida">Saída</option>
-    </select>
+    <p class="mensagem-ajuda">Usuário de teste: admin | Senha: admin123</p>
 
-    <button class="botao" onclick="registrarPonto()">Confirmar Registro</button>
+    <button class="botao" onclick="entrarAdmin()">Entrar</button>
     <a class="link-voltar" href="../index.html">Voltar</a>
-
 </section>
 
 <footer>

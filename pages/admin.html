@@ -2,11 +2,11 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Registrar Ponto</title>
+    <title>Administração</title>
     <link rel="icon" type="image/png" href="../assets/img/image_sem_fundo.png">
     <link rel="stylesheet" href="../assets/css/estilo.css">
 </head>
-<body>
+<body data-admin="true">
 
 <header>
     <img class="logo" src="../assets/img/image_sem_fundo.png" alt="Brasão de Santiago do Sul">
@@ -15,25 +15,18 @@
 
 <div class="titulo-sistema">Sistema de Ponto Eletrônico</div>
 
-<section class="container card-registro">
+<section class="container card-admin">
+    <span class="etiqueta">Administração</span>
+    <h3>Painel do Admin</h3>
+    <p>Escolha o que deseja acessar.</p>
 
-    <span class="etiqueta">Registro de ponto</span>
-    <h3>Registrar Ponto</h3>
-    <p>Informe o nome cadastrado pelo administrador.</p>
+    <div class="acoes-inicio">
+        <a class="botao" href="admin-servidor.html">Cadastrar Servidor</a>
+        <a class="botao botao-secundario" href="admin-relatorios.html">Relatórios</a>
+        <button class="botao botao-secundario" onclick="sairAdmin()">Sair do Admin</button>
+    </div>
 
-    <label>Nome:</label>
-    <input type="text" id="nome">
-    <p class="mensagem-ajuda" id="statusRegistro"></p>
-
-    <label>Registro:</label>
-    <select id="tipo">
-        <option value="entrada">Entrada</option>
-        <option value="saida">Saída</option>
-    </select>
-
-    <button class="botao" onclick="registrarPonto()">Confirmar Registro</button>
     <a class="link-voltar" href="../index.html">Voltar</a>
-
 </section>
 
 <footer>

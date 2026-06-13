@@ -3,25 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <title>Ponto Eletrônico - Câmara Municipal</title>
+    <link rel="icon" type="image/png" href="assets/img/image_sem_fundo.png">
     <link rel="stylesheet" href="assets/css/estilo.css">
 </head>
 <body>
 
 <header>
+    <img class="logo" src="assets/img/image_sem_fundo.png" alt="Brasão de Santiago do Sul">
     <h1>Câmara Municipal de Santiago do Sul</h1>
-    <h2>Sistema de Ponto Eletrônico</h2>
 </header>
 
-<section class="container">
-    <h3>Bem-vindo!</h3>
-    <p>Clique no botão abaixo para registrar seu ponto.</p>
+<main class="conteudo-principal">
+    <div class="titulo-sistema">Sistema de Ponto Eletrônico</div>
 
-    <a class="botao" href="pages/registro.html">Registrar Ponto</a>
-</section>
+    <section class="container card-inicio">
+        <span class="etiqueta">Acesso rápido</span>
+        <h3>Bem-vindo!</h3>
+        <p>Clique no botão abaixo para registrar seu ponto.</p>
+
+        <div class="acoes-inicio">
+            <a class="botao" href="pages/registro.html">Registrar Ponto</a>
+            <a class="botao botao-secundario" href="pages/historico.html">Histórico</a>
+            <a class="botao botao-secundario" href="pages/perfil.html">Perfil</a>
+            <a class="botao botao-secundario" href="pages/login-admin.html">Administração</a>
+        </div>
+    </section>
+</main>
 
 <footer>
-    © Câmara Municipal de Santiago do Sul
+    &copy; 2026 Câmara Municipal de Santiago do Sul
 </footer>
 
+<script src="assets/js/storage.js"></script>
 </body>
 </html>

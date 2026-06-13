@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Cadastrar Servidor</title>
+    <link rel="icon" type="image/png" href="../assets/img/image_sem_fundo.png">
+    <link rel="stylesheet" href="../assets/css/estilo.css">
+</head>
+<body data-admin="true">
+
+<header>
+    <img class="logo" src="../assets/img/image_sem_fundo.png" alt="Brasão de Santiago do Sul">
+    <h1>Câmara Municipal de Santiago do Sul</h1>
+</header>
+
+<div class="titulo-sistema">Sistema de Ponto Eletrônico</div>
+
+<section class="container card-admin">
+    <span class="etiqueta">Servidor</span>
+    <h3>Cadastrar Servidor</h3>
+
+    <form id="formServidor" onsubmit="event.preventDefault(); cadastrarServidor();">
+        <input type="hidden" id="adminId">
+
+        <label>Nome:</label>
+        <input type="text" id="adminNome">
+
+        <label>Matrícula:</label>
+        <input type="text" id="adminMatricula">
+
+        <label>Cargo:</label>
+        <input type="text" id="adminCargo">
+
+        <label>Setor:</label>
+        <input type="text" id="adminSetor">
+
+        <label>Carga horária diária:</label>
+        <input type="number" id="adminCarga" value="8" min="1">
+
+        <button class="botao" id="botaoServidor" type="submit">Cadastrar</button>
+        <button class="botao botao-secundario oculto" id="botaoCancelar" type="button" onclick="cancelarEdicao()">Cancelar edição</button>
+    </form>
+
+    <a class="link-voltar" href="admin.html">Voltar</a>
+</section>
+
+<footer>
+    &copy; 2026 Câmara Municipal de Santiago do Sul
+</footer>
+
+<script src="../assets/js/storage.js"></script>
+<script src="../assets/js/script.js"></script>
+</body>
+</html>
