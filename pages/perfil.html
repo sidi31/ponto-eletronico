@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Perfil</title>
+    <link rel="icon" type="image/png" href="../assets/img/image_sem_fundo.png">
+    <link rel="stylesheet" href="../assets/css/estilo.css">
+</head>
+<body>
+
+<header>
+    <img class="logo" src="../assets/img/image_sem_fundo.png" alt="Brasão de Santiago do Sul">
+    <h1>Câmara Municipal de Santiago do Sul</h1>
+</header>
+
+<div class="titulo-sistema">Sistema de Ponto Eletrônico</div>
+
+<section class="container card-registro">
+    <span class="etiqueta">Perfil</span>
+    <h3>Meus Dados</h3>
+
+    <label>Nome:</label>
+    <input type="text" id="perfilNome">
+
+    <button class="botao" onclick="buscarPerfil()">Buscar</button>
+
+    <div id="dadosPerfil" class="oculto">
+        <label>E-mail:</label>
+        <input type="email" id="perfilEmail">
+
+        <label>Telefone:</label>
+        <input type="text" id="perfilTelefone">
+
+        <p class="mensagem-ajuda" id="perfilInfo"></p>
+
+        <button class="botao" onclick="salvarPerfil()">Salvar Dados</button>
+    </div>
+
+    <p class="mensagem-ajuda" id="mensagemPerfil"></p>
+    <a class="link-voltar" href="../index.html">Voltar</a>
+</section>
+
+<footer>
+    &copy; 2026 Câmara Municipal de Santiago do Sul
+</footer>
+
+<script src="../assets/js/storage.js"></script>
+<script src="../assets/js/script.js"></script>
+</body>
+</html>

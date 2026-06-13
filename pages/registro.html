@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Registrar Ponto</title>
+    <link rel="icon" type="image/png" href="../assets/img/image_sem_fundo.png">
+    <link rel="stylesheet" href="../assets/css/estilo.css">
+</head>
+<body>
+
+<header>
+    <img class="logo" src="../assets/img/image_sem_fundo.png" alt="Brasão de Santiago do Sul">
+    <h1>Câmara Municipal de Santiago do Sul</h1>
+</header>
+
+<div class="titulo-sistema">Sistema de Ponto Eletrônico</div>
+
+<section class="container card-registro">
+
+    <span class="etiqueta">Registro de ponto</span>
+    <h3>Registrar Ponto</h3>
+    <p>Informe o nome cadastrado pelo administrador.</p>
+
+    <label>Nome:</label>
+    <input type="text" id="nome">
+    <p class="mensagem-ajuda" id="statusRegistro"></p>
+
+    <label>Registro:</label>
+    <select id="tipo">
+        <option value="entrada">Entrada</option>
+        <option value="saida">Saída</option>
+    </select>
+
+    <button class="botao" onclick="registrarPonto()">Confirmar Registro</button>
+    <a class="link-voltar" href="../index.html">Voltar</a>
+
+</section>
+
+<footer>
+    &copy; 2026 Câmara Municipal de Santiago do Sul
+</footer>
+
+<script src="../assets/js/storage.js"></script>
+<script src="../assets/js/script.js"></script>
+</body>
+</html>
