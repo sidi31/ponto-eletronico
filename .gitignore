@@ -8,3 +8,6 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Documentação interna
+docs/PROJETO.md

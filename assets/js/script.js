@@ -179,7 +179,7 @@ function validarAdmin() {
 function mostrarStatusRegistro() {
     const nomeCampo = document.getElementById("nome");
     const status = document.getElementById("statusRegistro");
-
+ 
     if (!nomeCampo || !status) {
         return;
     }
